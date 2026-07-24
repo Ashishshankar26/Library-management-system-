@@ -12,11 +12,11 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignUp }) => {
     fetch("http://localhost:8080/user/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: email.trim(), password }),
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.token) {
+        if (data.token && data.user) {
           onLoginSuccess(data.token, data.user);
         } else {
           setError(data.message || "Invalid credentials.");
@@ -27,7 +27,7 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignUp }) => {
         const demoUser = {
           _id: "demo-1",
           name: email.includes("librarian") ? "Librarian User" : "Student Member",
-          email,
+          email: email.trim(),
           type: email.includes("librarian") ? "LIBRARIAN" : "STUDENT",
         };
         onLoginSuccess("demo-jwt-token-123", demoUser);
@@ -71,6 +71,12 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignUp }) => {
           <button type="submit" className="btn-accent" style={{ width: "100%", marginTop: "12px" }}>
             Login
           </button>
+
+          <div style={{ marginTop: "14px", fontSize: "0.85rem", color: "#666", textAlign: "center", background: "#f8f9fa", padding: "10px", borderRadius: "4px" }}>
+            <b>Default Credentials:</b><br />
+            Librarian: <code>librarian@library.com</code> / <code>password</code><br />
+            Student: <code>student@library.com</code> / <code>password</code>
+          </div>
 
           <div style={{ marginTop: "18px", textAlign: "center", fontSize: "0.88rem", color: "#666" }}>
             Don't have an account?{" "}
