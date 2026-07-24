@@ -1,0 +1,185 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  background-color: #ffffff;
+  color: #333333;
+  padding: 40px 20px;
+}
+
+.lib-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Header Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eeeeee;
+}
+
+.nav-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #222222;
+}
+
+.nav-user {
+  font-size: 0.9rem;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Tab buttons */
+.tab-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tab-btn {
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: #f8f9fa;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  color: #444444;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #2185d0;
+  color: #ffffff;
+  border-color: #2185d0;
+}
+
+/* Buttons */
+.btn-accent {
+  background-color: #2185d0;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-accent:hover {
+  background-color: #1678c2;
+}
+
+.btn-outline {
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  color: #444444;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-outline:hover {
+  background: #f8f9fa;
+}
+
+/* Book Grid */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.book-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.book-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #222222;
+  margin-bottom: 4px;
+}
+
+.book-author {
+  font-size: 0.85rem;
+  color: #777777;
+  margin-bottom: 12px;
+}
+
+.book-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.stock-tag {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.stock-available {
+  color: #21ba45;
+}
+
+.stock-empty {
+  color: #db2828;
+}
+
+/* Form controls */
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: #2185d0;
+}
+
+/* Table styling */
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.custom-table th {
+  background: #f8f9fa;
+  color: #444444;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.custom-table td {
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eeeeee;
+}
