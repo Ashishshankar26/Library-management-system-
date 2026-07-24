@@ -64,7 +64,7 @@ body {
   border-color: #2185d0;
 }
 
-/* Buttons */
+/* General Buttons */
 .btn-accent {
   background-color: #2185d0;
   color: #ffffff;
@@ -105,10 +105,11 @@ body {
 .book-card {
   background: #ffffff;
   border: 1px solid #e0e0e0;
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 16px;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .book-title {
@@ -144,6 +145,44 @@ body {
 
 .stock-empty {
   color: #db2828;
+}
+
+/* Clean Card Action Buttons */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.btn-card {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.btn-issue {
+  background-color: #2185d0;
+  color: #ffffff;
+  border: none;
+}
+
+.btn-issue:hover {
+  background-color: #1678c2;
+}
+
+.btn-delete-red {
+  border: 1px solid #db2828;
+  color: #db2828;
+  background: #ffffff;
+}
+
+.btn-delete-red:hover {
+  background-color: #fff8f8;
 }
 
 /* Form controls */

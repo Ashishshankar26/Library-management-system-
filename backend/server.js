@@ -1,13 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/db");
 
-const authRoutes = require('./routes/authRoutes');
-const bookRoutes = require('./routes/bookRoutes');
-const issueRoutes = require('./routes/issueRoutes');
-
-dotenv.config();
+const userRoute = require("./routes/user-route");
+const bookRoute = require("./routes/book-route");
+const bookIssueRoute = require("./routes/book-issue-route");
 
 const app = express();
 
@@ -16,16 +13,14 @@ connectDB();
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/auth', authRoutes);
-app.use('/api/books', bookRoutes);
-app.use('/api/issues', issueRoutes);
+app.use("/user", userRoute);
+app.use("/book", bookRoute);
+app.use("/book-issue", bookIssueRoute);
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Library API Server running' });
-});
-
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`Library API Server running on port ${PORT}`);
+  console.log(`Library App Backend is running on Port ${PORT}`);
 });
+
+module.exports = app;
