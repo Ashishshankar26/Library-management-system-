@@ -3,6 +3,8 @@ import LoginScreen from './screens/LoginScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import { setToken, getToken, removeToken, setUserSession, getUserSession } from './utils/LoginUtil';
 
+const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:8080" : "";
+
 function App() {
   const [user, setUser] = useState(() => getUserSession());
   const [token, setTokenState] = useState(() => getToken());
@@ -52,7 +54,7 @@ function App() {
   }, [token]);
 
   const loadBooks = () => {
-    fetch('http://localhost:8080/book')
+    fetch(`${API_BASE_URL}/book`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -63,7 +65,7 @@ function App() {
   };
 
   const loadIssues = () => {
-    fetch('http://localhost:8080/book-issue')
+    fetch(`${API_BASE_URL}/book-issue`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
@@ -99,7 +101,7 @@ function App() {
       totalCopies: Number(totalCopies),
     };
 
-    fetch('http://localhost:8080/book', {
+    fetch(`${API_BASE_URL}/book`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -122,7 +124,7 @@ function App() {
   const confirmDeleteBook = () => {
     if (!deletingBook) return;
 
-    fetch(`http://localhost:8080/book/${deletingBook._id}`, { 
+    fetch(`${API_BASE_URL}/book/${deletingBook._id}`, { 
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     }).catch((err) => console.log(err));
@@ -152,7 +154,7 @@ function App() {
       issueDate: issueDate,
     };
 
-    fetch('http://localhost:8080/book-issue', {
+    fetch(`${API_BASE_URL}/book-issue`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -168,7 +170,7 @@ function App() {
   };
 
   const handleReturnBook = (id) => {
-    fetch(`http://localhost:8080/book-issue/${id}`, { 
+    fetch(`${API_BASE_URL}/book-issue/${id}`, { 
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     }).catch((err) => console.log(err));

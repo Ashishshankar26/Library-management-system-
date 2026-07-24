@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API_BASE_URL = window.location.hostname === "localhost" ? "http://localhost:8080" : "";
+
 const SignUpScreen = ({ onSignUpSuccess, onSwitchToLogin }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -11,7 +13,7 @@ const SignUpScreen = ({ onSignUpSuccess, onSwitchToLogin }) => {
     e.preventDefault();
     setError("");
 
-    fetch("http://localhost:8080/user/sign-up", {
+    fetch(`${API_BASE_URL}/user/sign-up`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email: email.trim(), password, type }),
