@@ -17,15 +17,15 @@ function App() {
   ]);
 
   const [myIssues, setMyIssues] = useState([
-    { _id: '1', isbn: '12345', studentId: '64bce14088f0b38643a177f1', issueDate: '8 August 2023' },
-    { _id: '2', isbn: '12345', studentId: '64bce14088f0b38643a177f1', issueDate: '10 August 2023' },
-    { _id: '3', isbn: '67890', studentId: '64bce14088f0b38643a177f2', issueDate: '15 July 2026' }
+    { _id: '1', isbn: '12345', title: 'Clean Code', author: 'Robert C. Martin', studentId: '64bce14088f0b38643a177f1', issueDate: '8 August 2023' },
+    { _id: '2', isbn: '12345', title: 'Clean Code', author: 'Robert C. Martin', studentId: '64bce14088f0b38643a177f1', issueDate: '10 August 2023' },
+    { _id: '3', isbn: '67890', title: 'Design Patterns', author: 'Erich Gamma', studentId: '64bce14088f0b38643a177f2', issueDate: '15 July 2026' }
   ]);
 
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('catalog');
 
-  // Form states
+  // Add Book Form state
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [isbn, setIsbn] = useState('');
@@ -38,6 +38,11 @@ function App() {
   const [issueDate, setIssueDate] = useState(() => {
     return new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   });
+
+  // Custom In-App Modal confirmation states
+  const [deletingBook, setDeletingBook] = useState(null);
+  const [issueSuccessMsg, setIssueSuccessMsg] = useState(null);
+  const [stockErrorMsg, setStockErrorMsg] = useState(false);
 
   useEffect(() => {
     if (token) {
@@ -110,18 +115,25 @@ function App() {
     setShowAddForm(false);
   };
 
-  const handleDeleteBook = (id) => {
-    fetch(`http://localhost:8080/book/${id}`, { 
+  const openDeleteBookModal = (book) => {
+    setDeletingBook(book);
+  };
+
+  const confirmDeleteBook = () => {
+    if (!deletingBook) return;
+
+    fetch(`http://localhost:8080/book/${deletingBook._id}`, { 
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     }).catch((err) => console.log(err));
 
-    setBooks(books.filter((b) => b._id !== id));
+    setBooks(books.filter((b) => b._id !== deletingBook._id));
+    setDeletingBook(null);
   };
 
   const openIssueModal = (book) => {
     if (book.availableCopies <= 0) {
-      alert('No available copies left!');
+      setStockErrorMsg(true);
       return;
     }
     setIssuingBook(book);
@@ -134,6 +146,8 @@ function App() {
     const issueRecord = {
       _id: String(Date.now()),
       isbn: issuingBook.isbn,
+      title: issuingBook.title,
+      author: issuingBook.author,
       studentId: studentId,
       issueDate: issueDate,
     };
@@ -149,8 +163,8 @@ function App() {
 
     setMyIssues([issueRecord, ...myIssues]);
     setBooks(books.map((b) => b._id === issuingBook._id ? { ...b, availableCopies: b.availableCopies - 1 } : b));
+    setIssueSuccessMsg({ title: issuingBook.title, studentId, date: issueDate });
     setIssuingBook(null);
-    alert(`Book '${issuingBook.title}' successfully issued to Student ${studentId}`);
   };
 
   const handleReturnBook = (id) => {
@@ -265,7 +279,7 @@ function App() {
                     Issue Book
                   </button>
                   {isLibrarian && (
-                    <button className="btn-card btn-delete-red" onClick={() => handleDeleteBook(book._id)}>
+                    <button className="btn-card btn-delete-red" onClick={() => openDeleteBookModal(book)}>
                       Delete
                     </button>
                   )}
@@ -287,6 +301,8 @@ function App() {
               <thead>
                 <tr>
                   <th>ISBN</th>
+                  <th>Book Title</th>
+                  <th>Author</th>
                   <th>Student ID</th>
                   <th>Issue Date</th>
                   <th>Action</th>
@@ -296,6 +312,8 @@ function App() {
                 {myIssues.map((item) => (
                   <tr key={item._id}>
                     <td><b>{item.isbn}</b></td>
+                    <td>{item.title || 'Clean Code'}</td>
+                    <td>{item.author || 'Robert C. Martin'}</td>
                     <td>{item.studentId}</td>
                     <td>{item.issueDate}</td>
                     <td>
@@ -311,10 +329,10 @@ function App() {
         </div>
       )}
 
-      {/* Issue Book Prompt Form Modal */}
+      {/* Issue Book Prompt Modal */}
       {issuingBook && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '8px', width: '100%', maxWidth: '450px', border: '1px solid #e0e0e0' }}>
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '8px', width: '100%', maxWidth: '450px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
             <h3 style={{ marginBottom: '15px' }}>Issue Book: {issuingBook.title}</h3>
             <form onSubmit={handleConfirmIssue}>
               <div style={{ marginBottom: '12px' }}>
@@ -346,6 +364,56 @@ function App() {
                 <button type="submit" className="btn-accent">Confirm Issue</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Issue Success Modal */}
+      {issueSuccessMsg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '8px', width: '100%', maxWidth: '420px', border: '1px solid #21ba45', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ color: '#21ba45', marginBottom: '12px' }}>Book Issued Successfully!</h3>
+            <div style={{ fontSize: '0.95rem', color: '#444', lineHeight: '1.5', marginBottom: '20px' }}>
+              <div><b>Book:</b> {issueSuccessMsg.title}</div>
+              <div><b>Student ID:</b> {issueSuccessMsg.studentId}</div>
+              <div><b>Issue Date:</b> {issueSuccessMsg.date}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <button className="btn-accent" onClick={() => setIssueSuccessMsg(null)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Stock Error Modal */}
+      {stockErrorMsg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '8px', width: '100%', maxWidth: '400px', border: '1px solid #db2828', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ color: '#db2828', marginBottom: '12px' }}>Out of Stock</h3>
+            <p style={{ fontSize: '0.95rem', color: '#444', marginBottom: '20px' }}>
+              There are currently no available copies left for this book.
+            </p>
+            <div style={{ textAlign: 'right' }}>
+              <button className="btn-outline" onClick={() => setStockErrorMsg(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Delete Book Modal */}
+      {deletingBook && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#ffffff', padding: '24px', borderRadius: '8px', width: '100%', maxWidth: '420px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+            <h3 style={{ marginBottom: '12px', color: '#db2828' }}>Delete Book</h3>
+            <p style={{ fontSize: '0.95rem', color: '#444', marginBottom: '20px' }}>
+              Are you sure you want to delete <b>"{deletingBook.title}"</b> (ISBN: {deletingBook.isbn}) from the library catalog?
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button className="btn-outline" onClick={() => setDeletingBook(null)}>Cancel</button>
+              <button className="btn-card btn-delete-red" style={{ background: '#db2828', color: '#ffffff' }} onClick={confirmDeleteBook}>
+                Delete Book
+              </button>
+            </div>
           </div>
         </div>
       )}
