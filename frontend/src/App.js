@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function App() {
+function App() {
   const [user, setUser] = useState({ name: 'Student Member', email: 'student@library.com', role: 'member' });
   const [books, setBooks] = useState([
     {
@@ -178,7 +178,7 @@ export default function App() {
 
           {/* Add Book Form (Admin) */}
           {showAddForm && user.role === 'admin' && (
-            <form onSubmit={handleAddBook} style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid var(--border-card)' }}>
+            <form onSubmit={handleAddBook} style={{ background: '#ffffff', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0e0e0' }}>
               <h3 style={{ marginBottom: '15px' }}>Add Book to Library</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
                 <input type="text" placeholder="Title" className="form-input" value={title} onChange={(e) => setTitle(e.target.value)} required />
@@ -199,7 +199,7 @@ export default function App() {
                 <div className="book-body">
                   <h3 className="book-title">{book.title}</h3>
                   <div className="book-author">By {book.author}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '15px' }}>ISBN: {book.isbn}</div>
+                  <div style={{ fontSize: '0.85rem', color: '#777777', marginBottom: '15px' }}>ISBN: {book.isbn}</div>
 
                   <div className="book-info-row">
                     <span className={`stock-tag ${book.availableCopies > 0 ? 'stock-available' : 'stock-empty'}`}>
@@ -208,7 +208,7 @@ export default function App() {
 
                     <div style={{ display: 'flex', gap: '5px' }}>
                       {user.role === 'admin' && (
-                        <button className="btn-outline" style={{ color: '#f43f5e' }} onClick={() => handleDeleteBook(book._id)}>
+                        <button className="btn-outline" style={{ color: '#db2828' }} onClick={() => handleDeleteBook(book._id)}>
                           Delete
                         </button>
                       )}
@@ -226,10 +226,10 @@ export default function App() {
 
       {/* Issued Books View */}
       {activeTab === 'issues' && (
-        <div style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
+        <div style={{ background: '#ffffff', padding: '20px', borderRadius: '8px', border: '1px solid #e0e0e0' }}>
           <h2 style={{ marginBottom: '15px' }}>My Issued Books</h2>
           {myIssues.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>No books currently borrowed.</p>
+            <p style={{ color: '#777777' }}>No books currently borrowed.</p>
           ) : (
             <table className="custom-table">
               <thead>
@@ -267,3 +267,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
