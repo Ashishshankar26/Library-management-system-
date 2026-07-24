@@ -11,21 +11,17 @@ dotenv.config();
 
 const app = express();
 
-// Connect to Database
 connectDB();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
 app.use('/api/issues', issueRoutes);
 
-// Health Check
 app.get('/', (req, res) => {
-  res.json({ message: 'CipherSchools Library Management API is running...' });
+  res.json({ message: 'Library API Server running' });
 });
 
 const PORT = process.env.PORT || 5001;

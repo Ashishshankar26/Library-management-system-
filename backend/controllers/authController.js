@@ -3,13 +3,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'cipherschools_super_secret_jwt_key_2026', {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'jwt_secret_key_123', {
     expiresIn: '30d',
   });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -44,8 +42,6 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// @desc    Authenticate user & get token
-// @route   POST /api/auth/login
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -70,8 +66,6 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// @desc    Get current user profile
-// @route   GET /api/auth/me
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
