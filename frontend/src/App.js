@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react';
+import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
+import { setToken, getToken, removeToken, setUserSession, getUserSession } from './utils/LoginUtil';
 
 function App() {
-  const [user, setUser] = useState({ name: 'Librarian User', email: 'librarian@library.com', role: 'LIBRARIAN' });
-  const [books, setBooks] = useState([]);
-  const [myIssues, setMyIssues] = useState([]);
+  const [user, setUser] = useState(() => getUserSession());
+  const [token, setTokenState] = useState(() => getToken());
+  const [authView, setAuthView] = useState('login'); // 'login' | 'signup'
+
+  const [books, setBooks] = useState([
+    { _id: '1', title: 'Clean Code', author: 'Robert C. Martin', isbn: '12345', availableCopies: 4, totalCopies: 5 },
+    { _id: '2', title: 'Design Patterns', author: 'Erich Gamma', isbn: '67890', availableCopies: 2, totalCopies: 4 },
+    { _id: '3', title: 'Atomic Habits', author: 'James Clear', isbn: '11223', availableCopies: 5, totalCopies: 5 },
+    { _id: '4', title: 'The Pragmatic Programmer', author: 'Andrew Hunt', isbn: '44556', availableCopies: 3, totalCopies: 3 },
+    { _id: '5', title: 'Introduction to Algorithms', author: 'Thomas H. Cormen', isbn: '77889', availableCopies: 1, totalCopies: 2 }
+  ]);
+
+  const [myIssues, setMyIssues] = useState([
+    { _id: '1', isbn: '12345', studentId: '64bce14088f0b38643a177f1', issueDate: '8 August 2023' },
+    { _id: '2', isbn: '12345', studentId: '64bce14088f0b38643a177f1', issueDate: '10 August 2023' },
+    { _id: '3', isbn: '67890', studentId: '64bce14088f0b38643a177f2', issueDate: '15 July 2026' }
+  ]);
+
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('catalog');
 
-  // Add Book Form state
+  // Form states
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [isbn, setIsbn] = useState('');
@@ -22,30 +40,45 @@ function App() {
   });
 
   useEffect(() => {
-    loadBooks();
-    loadIssues();
-  }, []);
+    if (token) {
+      loadBooks();
+      loadIssues();
+    }
+  }, [token]);
 
   const loadBooks = () => {
     fetch('http://localhost:8080/book')
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setBooks(data);
         }
       })
-      .catch((err) => console.log('Error loading books', err));
+      .catch((err) => console.log(err));
   };
 
   const loadIssues = () => {
     fetch('http://localhost:8080/book-issue')
       .then((res) => res.json())
       .then((data) => {
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           setMyIssues(data);
         }
       })
-      .catch((err) => console.log('Error loading issues', err));
+      .catch((err) => console.log(err));
+  };
+
+  const handleLoginSuccess = (newToken, userData) => {
+    setToken(newToken);
+    setUserSession(userData);
+    setTokenState(newToken);
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    removeToken();
+    setTokenState(null);
+    setUser(null);
   };
 
   const handleAddBook = (e) => {
@@ -53,6 +86,7 @@ function App() {
     if (!title || !author || !isbn) return;
 
     const newBook = {
+      _id: String(Date.now()),
       title,
       author,
       isbn,
@@ -62,24 +96,27 @@ function App() {
 
     fetch('http://localhost:8080/book', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(newBook),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        loadBooks();
-        setTitle('');
-        setAuthor('');
-        setIsbn('');
-        setShowAddForm(false);
-      })
-      .catch((err) => console.log(err));
+    }).catch((err) => console.log(err));
+
+    setBooks([newBook, ...books]);
+    setTitle('');
+    setAuthor('');
+    setIsbn('');
+    setShowAddForm(false);
   };
 
   const handleDeleteBook = (id) => {
-    fetch(`http://localhost:8080/book/${id}`, { method: 'DELETE' })
-      .then(() => loadBooks())
-      .catch((err) => console.log(err));
+    fetch(`http://localhost:8080/book/${id}`, { 
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).catch((err) => console.log(err));
+
+    setBooks(books.filter((b) => b._id !== id));
   };
 
   const openIssueModal = (book) => {
@@ -95,35 +132,44 @@ function App() {
     if (!studentId || !issueDate || !issuingBook) return;
 
     const issueRecord = {
+      _id: String(Date.now()),
       isbn: issuingBook.isbn,
       studentId: studentId,
       issueDate: issueDate,
-      bookId: issuingBook._id,
     };
 
     fetch('http://localhost:8080/book-issue', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(issueRecord),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        loadIssues();
-        loadBooks();
-        setIssuingBook(null);
-        alert(`Book '${issuingBook.title}' successfully issued to Student ${studentId}`);
-      })
-      .catch((err) => console.log(err));
+    }).catch((err) => console.log(err));
+
+    setMyIssues([issueRecord, ...myIssues]);
+    setBooks(books.map((b) => b._id === issuingBook._id ? { ...b, availableCopies: b.availableCopies - 1 } : b));
+    setIssuingBook(null);
+    alert(`Book '${issuingBook.title}' successfully issued to Student ${studentId}`);
   };
 
   const handleReturnBook = (id) => {
-    fetch(`http://localhost:8080/book-issue/${id}`, { method: 'DELETE' })
-      .then(() => {
-        loadIssues();
-        loadBooks();
-      })
-      .catch((err) => console.log(err));
+    fetch(`http://localhost:8080/book-issue/${id}`, { 
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    }).catch((err) => console.log(err));
+
+    setMyIssues(myIssues.filter((i) => i._id !== id));
   };
+
+  if (!token || !user) {
+    if (authView === 'signup') {
+      return <SignUpScreen onSignUpSuccess={handleLoginSuccess} onSwitchToLogin={() => setAuthView('login')} />;
+    }
+    return <LoginScreen onLoginSuccess={handleLoginSuccess} onSwitchToSignUp={() => setAuthView('signup')} />;
+  }
+
+  const isLibrarian = user.type === 'LIBRARIAN' || user.role === 'LIBRARIAN';
 
   const filteredBooks = books.filter((b) => 
     b.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -140,12 +186,9 @@ function App() {
         </div>
 
         <div className="nav-user">
-          <span>LoggedIn as: <b>{user.name}</b> ({user.role})</span>
-          <button 
-            className="btn-outline"
-            onClick={() => setUser(user.role === 'LIBRARIAN' ? { name: 'Student User', role: 'STUDENT' } : { name: 'Librarian User', role: 'LIBRARIAN' })}
-          >
-            Switch Role ({user.role === 'LIBRARIAN' ? 'Student' : 'Librarian'})
+          <span>Logged in as: <b>{user.name}</b> ({isLibrarian ? 'Librarian' : 'Student'})</span>
+          <button className="logout-button" style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={handleLogout}>
+            Logout
           </button>
         </div>
       </div>
@@ -180,7 +223,7 @@ function App() {
               onChange={(e) => setSearch(e.target.value)}
             />
 
-            {user.role === 'LIBRARIAN' && (
+            {isLibrarian && (
               <button className="btn-accent" onClick={() => setShowAddForm(!showAddForm)}>
                 {showAddForm ? 'Close Form' : '+ Add New Book'}
               </button>
@@ -188,7 +231,7 @@ function App() {
           </div>
 
           {/* Add Book Form (Librarian) */}
-          {showAddForm && user.role === 'LIBRARIAN' && (
+          {showAddForm && isLibrarian && (
             <form onSubmit={handleAddBook} style={{ background: '#ffffff', padding: '20px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #e0e0e0' }}>
               <h3 style={{ marginBottom: '15px' }}>Add Book to Library</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
@@ -221,7 +264,7 @@ function App() {
                   <button className="btn-card btn-issue" onClick={() => openIssueModal(book)}>
                     Issue Book
                   </button>
-                  {user.role === 'LIBRARIAN' && (
+                  {isLibrarian && (
                     <button className="btn-card btn-delete-red" onClick={() => handleDeleteBook(book._id)}>
                       Delete
                     </button>
