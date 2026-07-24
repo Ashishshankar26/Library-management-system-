@@ -19,37 +19,34 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignUp }) => {
         if (data.token && data.user) {
           onLoginSuccess(data.token, data.user);
         } else {
-          setError(data.message || "Invalid credentials.");
+          setError(data.message || "Invalid email or password.");
         }
       })
       .catch(() => {
-        // Fallback for offline demo mode
-        const demoUser = {
-          _id: "demo-1",
-          name: email.includes("librarian") ? "Librarian User" : "Student Member",
-          email: email.trim(),
-          type: email.includes("librarian") ? "LIBRARIAN" : "STUDENT",
-        };
-        onLoginSuccess("demo-jwt-token-123", demoUser);
+        setError("Unable to connect to authentication server.");
       });
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
-      <div style={{ width: "100%", maxWidth: "400px" }}>
+      <div style={{ width: "100%", maxWidth: "420px" }}>
         <h2 className="screen-heading" style={{ textAlign: "center", marginBottom: "24px" }}>
           Library System Login
         </h2>
 
         <form onSubmit={handleSubmit} style={{ background: "#ffffff", padding: "28px", borderRadius: "8px", border: "1px solid #e0e0e0", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-          {error && <div style={{ color: "#db2828", marginBottom: "14px", fontSize: "0.9rem", textAlign: "center" }}>{error}</div>}
+          {error && (
+            <div style={{ color: "#db2828", background: "#fff8f8", border: "1px solid #fbbd08", padding: "10px", borderRadius: "4px", marginBottom: "16px", fontSize: "0.88rem", textAlign: "center" }}>
+              {error}
+            </div>
+          )}
 
           <div className="form-group">
             <label>Email</label>
             <input
               type="email"
               className="form-input"
-              placeholder="Enter email..."
+              placeholder="Enter your email..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -61,7 +58,7 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignUp }) => {
             <input
               type="password"
               className="form-input"
-              placeholder="Enter password..."
+              placeholder="Enter your password..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -72,8 +69,8 @@ const LoginScreen = ({ onLoginSuccess, onSwitchToSignUp }) => {
             Login
           </button>
 
-          <div style={{ marginTop: "14px", fontSize: "0.85rem", color: "#666", textAlign: "center", background: "#f8f9fa", padding: "10px", borderRadius: "4px" }}>
-            <b>Default Credentials:</b><br />
+          <div style={{ marginTop: "16px", fontSize: "0.83rem", color: "#555", textAlign: "center", background: "#f8f9fa", padding: "10px", borderRadius: "4px" }}>
+            <b>Seeded MongoDB Accounts:</b><br />
             Librarian: <code>librarian@library.com</code> / <code>password</code><br />
             Student: <code>student@library.com</code> / <code>password</code>
           </div>
